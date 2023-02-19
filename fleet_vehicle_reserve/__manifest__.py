@@ -24,7 +24,7 @@
     # always loaded
     'data': [
         'security/ir.model.access.csv',
-        'security/fleet_vehicle_reserve_rule.xml'
+        'security/fleet_vehicle_reserve_rule.xml',
         'views/fleet_vehicle_reserved_views.xml',
     ],
     # only loaded in demonstration mode
