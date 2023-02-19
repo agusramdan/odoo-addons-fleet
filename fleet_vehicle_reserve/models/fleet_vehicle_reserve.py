@@ -8,18 +8,20 @@ class FleetReserveTime(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _name = "fleet.vehicle.reserve"
     _description = "Fleet vehicle Reserve Time"
-    _order = 'date_to'
+    _order = 'date_from, date_to'
 
     READONLY_STATES = {
         "reserved": [("readonly", True)],
         "done": [("readonly", True)],
+        "running": [("readonly", True)],
         "cancel": [("readonly", True)],
     }
     name = fields.Char(
         "No", required=True, index=True, copy=False, default="New"
     )
     state = fields.Selection(
-        [("draft", "Draft"), ("reserved", "Reserved"), ("running", "Running"),  ("cancel", "Canceled"), ("done", "Done")],
+        [("draft", "Draft"), ("reserved", "Reserved"), ("running", "Running"), ("cancel", "Canceled"),
+         ("done", "Done")],
         string="Status",
         copy=False,
         index=True,
@@ -34,14 +36,25 @@ class FleetReserveTime(models.Model):
         ,
     )
     active = fields.Boolean('Active', default=True, tracking=True)
-    reserve_date = fields.Datetime(string='Date', tracking=True, default=fields.Date.today())
-    company_id = fields.Many2one('res.company', 'Company', default=lambda self: self.env.company)
+    reserve_date = fields.Datetime(string='Date', states=READONLY_STATES, tracking=True, default=fields.Date.today())
+    company_id = fields.Many2one('res.company', 'Company', states=READONLY_STATES,
+                                 default=lambda self: self.env.company)
     user_id = fields.Many2one('res.users', 'PIC', tracking=True, default=lambda self: self.env.user)
     reference = fields.Char("Ref", states=READONLY_STATES)
-    partner_id = fields.Many2one('res.partner', string='Partner', tracking=True, check_company=True, states=READONLY_STATES)
+    partner_id = fields.Many2one('res.partner', string='Partner', tracking=True, check_company=True,
+                                 states=READONLY_STATES)
     date_from = fields.Datetime(string='Start', tracking=True, required=True, states=READONLY_STATES)
     date_to = fields.Datetime(string='End', tracking=True, required=True, states=READONLY_STATES)
-    vehicle_id = fields.Many2one('fleet.vehicle', tracking=True, string='Vehicle',check_company=True, required=True, states=READONLY_STATES)
+    vehicle_id = fields.Many2one('fleet.vehicle', tracking=True, string='Vehicle', check_company=True, required=True,
+                                 states=READONLY_STATES)
+    driver_id = fields.Many2one('res.partner', tracking=True, string='Driver', check_company=True, required=True,
+                                states=READONLY_STATES)
+    co_driver_id = fields.Many2one('res.partner', tracking=True, string='Co Driver', check_company=True,
+                                   states=READONLY_STATES)
+
+    @api.onchange('vehicle_id')
+    def onchange_vehicle_id(self):
+        self.driver_id = self.vehicle_id.driver_id.id
 
     @api.constrains('vehicle_id', 'date_from', 'date_to')
     def _check_availability(self):
@@ -52,11 +65,11 @@ class FleetReserveTime(models.Model):
     @api.model
     def create(self, vals):
         if vals.get("name", "New") == "New":
-                vals["name"] = (
+            vals["name"] = (
                     self.env["ir.sequence"].next_by_code(
                         "fleet.vehicle.reserve", vals.get('reserve_date', fields.Date.today()))
                     or "/"
-                )
+            )
         results = super(FleetReserveTime, self).create(vals)
         return results
 
@@ -91,7 +104,7 @@ class Fleet(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Reservation',
-            'view_mode': 'list',
+            'view_mode': 'tree,calendar,form',
             'res_model': 'fleet.vehicle.reserve',
             'domain': [('vehicle_id', '=', self.id), ('date_from', '>', fields.Datetime.now())],
             'context': {'default_vehicle_id': self.id}
@@ -117,10 +130,10 @@ class Fleet(models.Model):
         availability = True
         for each in self.reserved_time:
             if skip_id == each.id or each.state in ['done', 'cancel']: continue
-            if str(each.date_from) <= str(book_start_date) <= str(each.date_to):
+            if str(each.date_from) < str(book_start_date) < str(each.date_to):
                 availability = False
             elif str(book_start_date) < str(each.date_from):
-                if str(each.date_from) <= str(book_end_date) <= str(each.date_to):
+                if str(each.date_from) < str(book_end_date) < str(each.date_to):
                     availability = False
                 elif str(book_end_date) > str(each.date_to):
                     availability = False
