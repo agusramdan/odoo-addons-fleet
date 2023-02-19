@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+         <record model="ir.rule" id="record_fleet_vehicle_reserve_company_rule">
+            <field name="name">Restricted Vehicle ReserveRecord: multi-company</field>
+            <field name="model_id" ref="fleet_vehicle_reserve.model_fleet_vehicle_reserve"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                [('company_id', 'in', company_ids)]
+            </field>
+        </record>
+</odoo>

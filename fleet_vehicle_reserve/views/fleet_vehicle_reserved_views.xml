@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="sequence_fleet_vehicle_reserve" model="ir.sequence">
+            <field name="name">Fleet Vehicle Reserve Sequence</field>
+            <field name="code">fleet.vehicle.reserve</field>
+            <field name="prefix">RSV/%(range_year)s/</field>
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field eval="True" name="use_date_range"/>
+            <field name="padding">5</field>
+        </record>
+    </data>
+    <data>
+        <record id='fleet_vehicle_view_form' model='ir.ui.view'>
+            <field name="name">fleet.vehicle.form</field>
+            <field name="model">fleet.vehicle</field>
+            <field name="inherit_id" ref="fleet.fleet_vehicle_view_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" postion="inside">
+                    <button name="open_reservation"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-ticket">
+                        <field name="reserved_count" widget="statinfo" string="Reservation"/>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="fleet_vehicle_reserve_view_form">
+            <field name="name" >fleet_vehicle_reserve_view_form</field>
+            <field name="model">fleet.vehicle.reserve</field>
+            <field name="arch" type="xml">
+                <form string="Vehicle Reservation">
+                    <header>
+                        <button
+                                name="button_confirm"
+                                type="object"
+                                states="draft"
+                                string="Reserved"
+                                class="oe_highlight"
+                                id="bid_confirm"
+                                groups="fleet.fleet_group_manager"
+                        />
+                        <button
+                                name="button_draft"
+                                states="reserved"
+                                string="Set to Draft"
+                                type="object"
+                                groups="fleet.fleet_group_manager"
+                        />
+                        <button
+                                name="button_running"
+                                states="reserved"
+                                string="Set to Running"
+                                type="object"
+                                groups="fleet.fleet_group_manager"
+                        />
+                        <button
+                                name="button_cancel"
+                                states="draft,confirmed"
+                                string="Cancel"
+                                type="object"
+                                groups="fleet.fleet_group_manager"
+                        />
+                        <field
+                                name="state"
+                                widget="statusbar"
+                                statusbar_visible="draft,running,done"
+                        />
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1" />
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="reference" />
+                                <field name="reserve_date" />
+                                <field name="date_from" />
+                                <field name="date_to" />
+                            </group>
+                            <group>
+                                <field name="vehicle_id" />
+                                <field name="partner_id" />
+                                <field name="company_id" groups="base.group_multi_company"/>
+                                <field name="user_id" />
+                            </group>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" />
+                        <field name="activity_ids" widget="mail_activity" />
+                        <field name="message_ids" widget="mail_thread" />
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="fleet_vehicle_reserve_view_calendar" model="ir.ui.view">
+            <field name="name">Fleet Vehicle Reserved Calendar</field>
+            <field name="model">fleet.vehicle.reserve</field>
+            <field name="arch" type="xml">
+                <calendar
+                        string="Reserved"
+                        date_start="date_from"
+                        date_stop="date_to"
+                        quick_add="false"
+                        color="vehicle_id"
+                >
+                    <field name="vehicle_id"  avatar_field="image_128" />
+                    <field name="partner_id"  avatar_field="image_128" />
+                    <field name="user_id"  avatar_field="image_128" />
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="state" />
+                </calendar>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="fleet_vehicle_reserve_view_tree">
+            <field name="name">fleet_vehicle_reserve_tree_view</field>
+            <field name="model">fleet.vehicle.reserve</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name" />
+                    <field name="partner_id"/>
+                    <field name="vehicle_id"/>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <field name="reference" />
+                    <field name="user_id" />
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="state" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_fleet_vehicle_reserve" model="ir.actions.act_window">
+            <field name="name">Fleet Vehicle Reserved</field>
+            <field name="res_model">fleet.vehicle.reserve</field>
+            <field name="view_mode">calendar,tree</field>
+        </record>
+
+        <menuitem id="menu_fleet_vehicle_reserve" parent="fleet.fleet_vehicles" name="Reservation"
+                  action="action_fleet_vehicle_reserve" groups="fleet.fleet_group_manager" sequence="2"/>
+    </data>
+</odoo>
