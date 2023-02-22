@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id='fleet_vehicle_view_form' model='ir.ui.view'>
+        <field name="name">fleet.vehicle.form</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" postion="inside">
+                <button name="return_action_gps_log"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-map-marker">
+                    <field name="gps_log_count" widget="statinfo" string="GPS Log"/>
+                </button>
+            </xpath>
+            <xpath expr="//sheet/group[1]" postion="inside">
+                <group string="GPS Data">
+                    <field name="latitude"/>
+                    <field name="longitude"/>
+                    <field name="spead"/>
+                    <field name="heading"/>
+                    <field name="engine_on"/>
+                    <field name="gps_date_time" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id='fleet_vehicle_gps_log_view_form' model='ir.ui.view'>
+        <field name="name">fleet.vehicle.gps.log.form</field>
+        <field name="model">fleet.vehicle.gps.log</field>
+        <field name="arch" type="xml">
+            <form string="gps.log Logs">
+                <sheet>
+                    <group>
+                        <field name="vehicle_id" attrs="{'readonly':[('source','!=','Manual')]}" />
+                        <field name="latitude" attrs="{'readonly':[('source','!=','Manual')]}" />
+                        <field name="longitude" attrs="{'readonly':[('source','!=','Manual')]}" />
+                        <field name="spead" attrs="{'readonly':[('source','!=','Manual')]}" />
+                        <field name="heading" attrs="{'readonly':[('source','!=','Manual')]}" />
+                        <field name="engine_on" attrs="{'readonly':[('source','!=','Manual')]}" />
+                        <field name="gps_date_time" attrs="{'readonly':[('source','!=','Manual')]}" />
+                        <field name="source" readonly="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id='fleet_vehicle_gps_log_view_tree' model='ir.ui.view'>
+        <field name="name">fleet.vehicle.gps.log.tree</field>
+        <field name="model">fleet.vehicle.gps.log</field>
+        <field name="arch" type="xml">
+            <tree string="gps.log Logs" editable="top">
+                <field name="vehicle_id" widget="many2one_avatar"/>
+                <field name="latitude" attrs="{'readonly':[('source','!=','Manual')]}"/>
+                <field name="longitude" attrs="{'readonly':[('source','!=','Manual')]}"/>
+                <field name="spead" attrs="{'readonly':[('source','!=','Manual')]}"/>
+                <field name="heading" attrs="{'readonly':[('source','!=','Manual')]}"/>
+                <field name="engine_on" attrs="{'readonly':[('source','!=','Manual')]}"/>
+                <field name="gps_date_time" attrs="{'readonly':[('source','!=','Manual')]}"/>
+                <field name="source" readonly="1" />
+            </tree>
+        </field>
+    </record>
+
+    <record id='fleet_vehicle_gps_log_view_kanban' model='ir.ui.view'>
+        <field name="name">fleet.vehicle.gps.log.kanban</field>
+        <field name="model">fleet.vehicle.gps.log</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click">
+                            <div>
+                                <strong>
+                                    <field name="vehicle_id" widget="res_partner_many2one"/>
+                                    <span class="float-right"><field name="gps_date_time"/></span>
+                                </strong>
+                            </div>
+                            <div>
+                                <span class="float-right">
+                                    <field name="latitude"/>
+                                    <field name="longitude"/>
+                                    <field name="spead"/>
+                                    <field name="heading"/>
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id='fleet_vehicle_gps_log_view_search' model='ir.ui.view'>
+        <field name="name">fleet.vehicle.gps.log.search</field>
+        <field name="model">fleet.vehicle.gps.log</field>
+        <field name="arch" type="xml">
+            <search string="Vehicles GPS Log" >
+                <field name="vehicle_id"/>
+                <filter string="Today" name="today"
+                        domain="[('gps_date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter name="groupby_vehicle" context="{'group_by': 'vehicle_id'}" string="Vehicle"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+    <record id='fleet_vehicle_gps_log_action' model='ir.actions.act_window'>
+        <field name="name">GPS Log</field>
+        <field name="res_model">fleet.vehicle.gps.log</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="context">{'search_default_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new gps.log log
+            </p><p>
+            You can add various gps.log entries for all vehicles.
+        </p>
+        </field>
+    </record>
+
+    <menuitem action="fleet_vehicle_gps_log_action" parent="fleet.fleet_vehicles"
+              id="fleet_vehicle_gps_log_menu" groups="fleet.fleet_group_user" sequence="10"/>
+
+</odoo>
