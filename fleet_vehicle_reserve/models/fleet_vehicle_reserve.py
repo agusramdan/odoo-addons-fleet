@@ -56,6 +56,13 @@ class FleetReserveTime(models.Model):
     def onchange_vehicle_id(self):
         self.driver_id = self.vehicle_id.driver_id.id
 
+    # hack change from calendar drag and drop
+    @api.constrains('date_from', 'date_to')
+    def _change_calendar_date_from(self):
+        for record in self:
+            if record.state != 'draft':
+                raise ValidationError('Can not update Reserve Date.')
+
     @api.constrains('vehicle_id', 'date_from', 'date_to')
     def _check_availability(self):
         for record in self:
@@ -130,11 +137,13 @@ class Fleet(models.Model):
         availability = True
         for each in self.reserved_time:
             if skip_id == each.id or each.state in ['done', 'cancel']: continue
-            if str(each.date_from) < str(book_start_date) < str(each.date_to):
+            if each.date_from < book_start_date < each.date_to:
                 availability = False
-            elif str(book_start_date) < str(each.date_from):
-                if str(each.date_from) < str(book_end_date) < str(each.date_to):
+            elif book_start_date < each.date_from:
+                if each.date_from < book_end_date < each.date_to:
                     availability = False
-                elif str(book_end_date) > str(each.date_to):
+                elif book_end_date > each.date_to:
                     availability = False
+            if not availability: break
+
         return availability
