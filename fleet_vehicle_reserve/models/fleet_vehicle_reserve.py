@@ -100,6 +100,15 @@ class Fleet(models.Model):
                                     ondelete='cascade')
     reserved_count = fields.Integer(compute='_compute_reserved_count')
 
+    reserved_id = fields.One2many('fleet.vehicle.reserve', compute='_compute_reserved_count')
+
+    def _compute_reserved_id(self):
+        Reserved = self.env['fleet.vehicle.reserve']
+        for record in self:
+            filter_domain = [('vehicle_id', '=', record.id), ('state', '=', 'reserved'),
+                             ('date_to', '>', fields.Datetime.now())]
+            record.reserved_id = Reserved.search(filter_domain, limit=1, order='date_from')
+
     def _compute_reserved_count(self):
         Reserved = self.env['fleet.vehicle.reserve']
         for record in self:
@@ -136,7 +145,9 @@ class Fleet(models.Model):
     def check_availability(self, book_start_date, book_end_date, skip_id=False):
         availability = True
         for each in self.reserved_time:
-            if skip_id == each.id or each.state in ['done', 'cancel']: continue
+            if skip_id == each.id or each.state in ['done', 'cancel']:
+                continue
+
             if each.date_from < book_start_date < each.date_to:
                 availability = False
             elif book_start_date < each.date_from:
@@ -144,6 +155,8 @@ class Fleet(models.Model):
                     availability = False
                 elif book_end_date > each.date_to:
                     availability = False
-            if not availability: break
+
+            if not availability:
+                break
 
         return availability
