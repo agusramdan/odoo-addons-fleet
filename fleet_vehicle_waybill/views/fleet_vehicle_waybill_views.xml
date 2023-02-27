@@ -1,0 +1,241 @@
+<odoo>
+    <data noupdate="1">
+        <record id="sequence_fleet_vehicle_reserve" model="ir.sequence">
+            <field name="name">Fleet Vehicle Waybill Sequence</field>
+            <field name="code">fleet.vehicle.waybill</field>
+            <field name="prefix">RWB/%(range_year)s/</field>
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field eval="True" name="use_date_range"/>
+            <field name="padding">5</field>
+        </record>
+    </data>
+    <data>
+        <!-- explicit list view definition -->
+        <record model="ir.ui.view" id="fleet_vehicle_waybill_view_tree">
+            <field name="name">fleet_vehicle_waybill tree</field>
+            <field name="model">fleet.vehicle.waybill</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="partner_id"  widget="many2one_avatar" />
+                    <field name="shipper_id"  widget="many2one_avatar"/>
+                    <field name="consignee_id"  widget="many2one_avatar" />
+                    <field name="vehicle_id"  widget="many2one_avatar" />
+                    <field name="driver_id"  widget="many2one_avatar" />
+                    <field name="user_id"  widget="many2one_avatar" />
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="estimation_time_pickup" />
+                    <field name="estimation_time_deliver" />
+                    <field name="state" />
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="fleet_vehicle_waybill_view_form">
+            <field name="name">fleet_vehicle_waybill tree</field>
+            <field name="model">fleet.vehicle.waybill</field>
+            <field name="arch" type="xml">
+                <form string="Vehicle Waybill">
+                    <header>
+                        <button
+                                name="button_draft"
+                                states="booking,cancel"
+                                string="Set to Draft"
+                                type="object"
+                                groups="fleet.fleet_group_manager"
+                        />
+                        <button
+                                name="button_confirm"
+                                states="draft"
+                                string="Confirm"
+                                type="object"
+                                groups="fleet.fleet_group_manager"
+                        />
+                        <button
+                                name="button_go_origin"
+                                states="draft,booking"
+                                string="Go to Origin"
+                                type="object"
+                                groups="fleet.fleet_group_manager"
+                        />
+                        <button
+                                name="button_pickup"
+                                states="waiting"
+                                string="Pickup"
+                                type="object"
+                                groups="fleet.fleet_group_manager"
+                        />
+                        <button
+                                name="button_departure"
+                                states="pickup"
+                                string="Departure"
+                                type="object"
+                                groups="fleet.fleet_group_manager"
+                        />
+                        <button
+                                name="button_arrival"
+                                states="shipment"
+                                string="Arrival"
+                                type="object"
+                                groups="fleet.fleet_group_manager"
+                        />
+                        <button
+                                name="button_delivered"
+                                states="arrival"
+                                string="Delivered"
+                                type="object"
+                                groups="fleet.fleet_group_manager"
+                        />
+                        <button
+                                name="button_invoiced"
+                                states="delivered"
+                                string="Invoiced"
+                                type="object"
+                                groups="fleet.fleet_group_manager"
+                        />
+                        <button
+                                name="button_done"
+                                states="invoiced"
+                                string="Done"
+                                type="object"
+                                groups="fleet.fleet_group_manager"
+                        />
+                        <button
+                                name="button_cancel"
+                                states="draft,reserved"
+                                string="Cancel"
+                                type="object"
+                                groups="fleet.fleet_group_manager"
+                        />
+                        <field
+                                name="state"
+                                widget="statusbar"
+                                statusbar_visible="draft,running,done"
+                        />
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1" />
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="partner_id" />
+
+                            </group>
+                            <group>
+                                <field name="date" />
+                            </group>
+                            <group>
+                                <field name="shipper_id" />
+                                <field name="origin_id" />
+                                <field name="origin_contact_id" string="Contact"/>
+                            </group>
+                            <group>
+                                <field name="consignee_id" />
+                                <field name="destination_id" />
+                                <field name="destination_contact_id" string="Contact"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="description_goods" string="Description of Goods">
+                                <group>
+                                    <field name="goods_line" nolabel="1" >
+                                        <tree editable="1">
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="name"  />
+                                            <field name="remark" optional="hide"/>
+                                            <field name="est_weight" label="EST Weight" optional="hide"/>
+                                            <field name="weight"  />
+                                            <field name="uom_weight"  optional="hide" />
+                                            <field name="est_volume" label="EST Volume" optional="hide"/>
+                                            <field name="volume"  label="EST Volume"/>
+                                            <field name="uom_volume"  label="EST Volume" optional="hide"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                            </page>
+                            <page name="requirement_delivery" string="Requirement">
+                                <group>
+                                    <group string="Time Pickup">
+                                        <field name="is_requirement_time_pickup" string="Requirement" />
+                                        <field name="estimation_time_pickup"  string="Estimation"/>
+                                    </group>
+                                    <group string="Time Departure">
+                                        <field name="is_requirement_etd"  string="Requirement" />
+                                        <field name="estimation_time_departure"   string="Estimation"/>
+                                    </group>
+                                    <group string="Time Arrival">
+                                        <field name="is_requirement_eta"  string="Requirement" />
+                                        <field name="estimation_time_arrival"   string="Estimation"/>
+                                    </group>
+                                    <group string="Time Delivery">
+                                        <field name="is_requirement_delivery" string="Requirement"  />
+                                        <field name="estimation_time_deliver"   string="Estimation"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page name="miscellaneous" string="Miscellaneous">
+                                <group>
+                                    <group>
+                                        <field name="user_id" />
+                                        <field name="vehicle_id" />
+                                        <field name="driver_id" />
+                                        <field name="company_id" groups="base.group_multi_company"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" />
+                        <field name="activity_ids" widget="mail_activity" />
+                        <field name="message_ids" widget="mail_thread" />
+                    </div>
+                </form>
+            </field>
+        </record>
+        <!-- actions opening views on models -->
+        <record model="ir.actions.act_window" id="fleet_vehicle_waybill_action_window">
+            <field name="name">Waybill</field>
+            <field name="res_model">fleet.vehicle.waybill</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- server action to the one above -->
+        <!--
+            <record model="ir.actions.server" id="fleet_vehicle_waybill.action_server">
+              <field name="name">fleet_vehicle_waybill server</field>
+              <field name="model_id" ref="model_fleet_vehicle_waybill_fleet_vehicle_waybill"/>
+              <field name="state">code</field>
+              <field name="code">
+                action = {
+                  "type": "ir.actions.act_window",
+                  "view_mode": "tree,form",
+                  "res_model": model._name,
+                }
+              </field>
+            </record>
+        -->
+
+        <!-- Top menu item -->
+        <!--
+            <menuitem name="fleet_vehicle_waybill" id="fleet_vehicle_waybill.menu_root"/>
+        -->
+        <!-- menu categories -->
+        <!--
+            <menuitem name="Menu 1" id="fleet_vehicle_waybill.menu_1" parent="fleet_vehicle_waybill.menu_root"/>
+            <menuitem name="Menu 2" id="fleet_vehicle_waybill.menu_2" parent="fleet_vehicle_waybill.menu_root"/>
+        -->
+        <!-- actions -->
+        <menuitem name="Waybill" id="fleet_vehicle_waybill_menu_waybill" parent="fleet.fleet_vehicles"
+                  action="fleet_vehicle_waybill_action_window"/>
+        <!--
+            <menuitem name="List" id="fleet_vehicle_waybill.menu_1_list" parent="fleet_vehicle_waybill.menu_1"
+                      action="fleet_vehicle_waybill.action_window"/>
+            <menuitem name="Server to list" id="fleet_vehicle_waybill" parent="fleet_vehicle_waybill.menu_2"
+                      action="fleet_vehicle_waybill.action_server"/>
+        -->
+    </data>
+</odoo>
