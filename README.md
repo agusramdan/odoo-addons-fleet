@@ -16,6 +16,8 @@ addon | version | maintainers | summary
 [fleet_vehicle_gps_log](fleet_vehicle_gps_log/) | 14.0.1.0.0 |    | This module extends the fleet management functionality. Allows the registration of the vehicle's gps log.
 [fleet_vehicle_google_map](fleet_vehicle_google_map/) | 14.0.1.0.0 |    | This module extends the fleet management functionality. Allows the show location vehicle at google map.
 [fleet_vehicle_waybill](fleet_vehicle_waybill/) | 14.0.1.0.0 |    | This module extends the fleet management functionality. Allows the registration of the vehicle's waybill.
+[fleet_vehicle_waybill_tracking](fleet_vehicle_waybill_tracking/) | 14.0.1.0.0 |    | This module extends the fleet management functionality. Allows the registration of the vehicle's waybill tracking.
+[fleet_vehicle_waybill_google_map](fleet_vehicle_waybill_google_map/) | 14.0.1.0.0 |    | This module extends the fleet management functionality. Allows the registration of the vehicle's waybill show in google map.
 
 [//]: # (end addons)
 

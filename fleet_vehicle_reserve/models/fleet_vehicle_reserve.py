@@ -7,8 +7,9 @@ from odoo.exceptions import UserError, ValidationError
 class FleetReserveTime(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _name = "fleet.vehicle.reserve"
-    _description = "Fleet vehicle Reserve Time"
+    _description = "Fleet Vehicle Reserve Time"
     _order = 'date_from, date_to'
+    _check_company_auto = True
 
     READONLY_STATES = {
         "reserved": [("readonly", True)],

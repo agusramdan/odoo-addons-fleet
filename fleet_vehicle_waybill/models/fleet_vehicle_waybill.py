@@ -7,9 +7,10 @@ class FleetVehicleWaybill(models.Model):
     _name = 'fleet.vehicle.waybill'
     _description = 'Fleet Vehicle Waybill'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    name = fields.Char()
-
+    _check_company_auto = True
     _order = 'date'
+
+    name = fields.Char()
 
     READONLY_STATES = {
         "booking": [("readonly", True)],
@@ -87,10 +88,10 @@ class FleetVehicleWaybill(models.Model):
 
     destination_id = fields.Many2one('res.partner', tracking=True, string='Destination', check_company=True,
                                      states=READONLY_STATES,
-                                     help="Fill when Consignee and Destination deferment address")
+                                     help="Fill when Consignee and Destination different address")
     destination_contact_id = fields.Many2one('res.partner', tracking=True, string='Destination', check_company=True,
                                      states=READONLY_STATES,
-                                     help="Fill when Consignee and Destination deferment address")
+                                     help="Fill when Consignee and Destination different address")
     drop_point_id = fields.Many2one('res.partner', compute='_compute_drop_point')
 
     def _compute_drop_point(self):
@@ -168,8 +169,8 @@ class FleetVehicleWaybillGoods(models.Model):
     waybill_id = fields.Many2one('fleet.vehicle.waybill')
     remark = fields.Char()
     est_weight = fields.Boolean()
-    weight = fields.Float("Total Weight")
+    weight = fields.Float("Weight")
     uom_weight = fields.Many2one("uom.uom")
     est_volume = fields.Boolean()
-    volume = fields.Float("Total Volume")
+    volume = fields.Float(" Volume")
     uom_volume = fields.Many2one("uom.uom")

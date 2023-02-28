@@ -11,6 +11,29 @@
         </record>
     </data>
     <data>
+        <record id="fleet_vehicle_waybill_view_search" model="ir.ui.view">
+            <field name="name">fleet.vehicle.waybill.search</field>
+            <field name="model">fleet.vehicle.waybill</field>
+            <field name="arch" type="xml">
+                <search string="Waybill">
+                    <filter name="my_waybill" string="MyWaybill"  domain="[('user_id', '=', uid)]"/>
+                    <filter name="on_shipment" string="On Shipment"  domain="[('state', '=', 'shipment')]"/>
+                    <field name="name" string="Employees" filter_domain="[('name','ilike',self)]"/>
+                    <field name="state" string="Status"/>
+                    <field name="company_id" string="Company"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_vehicle" string="Vehicle" domain="[]" context="{'group_by':'vehicle_id'}"/>
+                        <filter name="group_driver" string="Driver" domain="[]" context="{'group_by':'driver_id'}"/>
+                        <filter name="group_company" string="Company" domain="[]" context="{'group_by':'company_id'}"/>
+                    </group>
+                    <searchpanel>
+                        <field name="company_id" groups="base.group_multi_company" icon="fa-building" enable_counters="1"/>
+                        <field name="vehicle_id" icon="fa-truck" enable_counters="1"/>
+                    </searchpanel>
+                </search>
+             </field>
+        </record>
         <!-- explicit list view definition -->
         <record model="ir.ui.view" id="fleet_vehicle_waybill_view_tree">
             <field name="name">fleet_vehicle_waybill tree</field>
@@ -201,6 +224,7 @@
             <field name="name">Waybill</field>
             <field name="res_model">fleet.vehicle.waybill</field>
             <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_my_waybill':1}</field>
         </record>
 
         <!-- server action to the one above -->
